@@ -26,16 +26,14 @@ def get_parameters():
             "pack",
             #"stack",
     ]
-    parameters["density"] = [0.1] # g/cm^3
+    parameters["density"] = [0.1] # float (g/cm^3)
     parameters["n_chains"] = [10] # int
     parameters["chain_lengths"] = [4] # int
-    parameters["bead_length"] = [1] # int
-    parameters["bead_mass"] = [100] # amu
-    parameters["bond_length"] = [0.01] # nm
+    parameters["bead_length"] = [1] # float (angstroms) 
+    parameters["bead_mass"] = [1] # float (amu)
+    parameters["bond_length"] = [0.01] # float (angstroms) 
     parameters["box_constraints"] = [
-            {"x": None,
-             "y": None,
-             "z": None}
+            {"x": None, "y": None, "z": None}
 	]
     parameters["kwargs"] = [
             {"box_expand_factor": 5},
@@ -45,13 +43,13 @@ def get_parameters():
 
     ### SIMULATION PARAMETERS ###
     parameters["epsilon"] = [1.0]
-    parameters["lperp"] = [0.5]
-    parameters["lpar"] = [1.0]
+    parameters["lperp"] = [0.5] # Semi-axis length perpendicular to bead-bond
+    parameters["lpar"] = [1.0] # 1/2 of the bead_length
     parameters["bond_k"] = [500]
     parameters["angle_k"] = [10]
     parameters["angle_theta"] = [2.0]
     parameters["tau_kt"] = [0.1]
-    parameters["dt"] = [0.0005]
+    parameters["dt"] = [0.0001]
     parameters["r_cut"] = [3.0] # Angstroms
     parameters["sim_seed"] = [42]
     parameters["neighbor_list"] = ["Cell"]
@@ -65,8 +63,8 @@ def get_parameters():
         ]
 
     ### Quench related parameters ###
-    parameters["kT_quench"] = [7]
-    parameters["n_steps"] = [2e5]
+    parameters["kT"] = [1.0]
+    parameters["n_steps"] = [5e7]
 
     ### Anneal related parameters ###
     # List of [initial kT, final kT] Reduced Temps
