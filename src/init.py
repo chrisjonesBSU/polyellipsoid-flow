@@ -11,10 +11,12 @@ The result of running this file is the creation of a signac workspace:
 
 """
 
-import signac
 import logging
 from collections import OrderedDict
 from itertools import product
+
+import hoomd
+import signac
 
 
 def get_parameters():
@@ -41,41 +43,33 @@ def get_parameters():
             #{}
 	]
 
-    ### SIMULATION PARAMETERS ###
+    # SIMULATION PARAMETERS 
     parameters["epsilon"] = [1.0]
     parameters["lperp"] = [0.5] # Semi-axis length perpendicular to bead-bond
     parameters["lpar"] = [1.0] # 1/2 of the bead_length
     parameters["bond_k"] = [500]
     parameters["angle_k"] = [10]
     parameters["angle_theta"] = [2.0]
-    parameters["tau_kt"] = [0.1]
     parameters["dt"] = [0.0001]
     parameters["r_cut"] = [3.0] # Angstroms
     parameters["sim_seed"] = [42]
-    parameters["neighbor_list"] = ["Cell"]
+    parameters["gsd_write_period"] = [10000] # Num steps between GSD frames
+    parameters["log_write_period"] = [10000] # Num steps between log lines
+
+    # Set Shrink run parameters here
+    # If all are None; not shrink step will be ran
+    # If all are defined (i.e. not None or 0), shrink step will run
     parameters["init_shrink_kT"] = [None]
     parameters["final_shrink_kT"] = [None]
     parameters["shrink_steps"] = [None]
     parameters["shrink_period"] = [None]
-    parameters["procedure"] = [
-            "quench",
-            #"anneal"
-        ]
 
-    ### Quench related parameters ###
-    parameters["kT"] = [1.0]
-    parameters["n_steps"] = [5e7]
+    # Run related parameters
+    # Set parameters required for the run functions added to project.py
+    parameters["tau_kt"] = [0.1]
+    parameters["tau_pressure"] = [0.1]
+    parameters["neighbor_list"] = [hoomd.md.nlist.Cell]
 
-    ### Anneal related parameters ###
-    # List of [initial kT, final kT] Reduced Temps
-    #parameters["kT_anneal"] = [
-    #        [6.0, 2.0]
-    #    ]
-    # List of lists of number of steps
-    #parameters["anneal_sequence"] = [
-    #        [2e5, 1e5, 3e5, 5e5, 5e5, 1e5]
-    #    ]
-    #parameters["schedule"] = [None]
 
     return list(parameters.keys()), list(product(*parameters.values()))
 

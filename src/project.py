@@ -87,10 +87,10 @@ def sample(job):
         system = System(
                 n_chains=job.sp.n_chains,
                 chain_lengths=job.sp.chain_lengths,
-                bead_mass=job.sp.bead_mass,
                 bead_length=job.sp.bead_length,
-                bond_length=job.sp.bond_length,
+                bead_mass=job.sp.bead_mass,
                 density=job.sp.density
+                bond_length=job.sp.bond_length,
         )
         if job.sp.system_type == "pack":
             system.pack(**job.sp.kwargs)
@@ -106,16 +106,17 @@ def sample(job):
                 epsilon=job.sp.epsilon,
                 lperp=job.sp.lperp,
                 lpar=job.sp.lpar,
-                tau=job.sp.tau_kt,
-                dt=job.sp.dt,
-                r_cut=job.sp.r_cut,
                 bond_k=job.sp.bond_k,
+                r_cut=job.sp.r_cut,
                 angle_k=job.sp.angle_k,
                 angle_theta=job.sp.angle_theta,
                 seed=job.sp.sim_seed,
                 gsd_write=10000,
                 log_write=1000
         )
+
+        # Write your simulation procedure below:
+
         if all(
                 [
                     job.sp.init_shrink_kT,
@@ -124,48 +125,17 @@ def sample(job):
                     job.sp.shrink_period,
                 ]
         ):
-            print("-------------------------------")
-            print("Running a shrink simulation...")
-            print("-------------------------------")
-            print()
-            sim.shrink(
-                    kT=job.sp.init_shrink_kT,
+            sim.temperature_ramp(
                     n_steps=job.sp.shrink_steps,
-                    shrink_period=job.sp.shrink_period
+                    kT_start=job.sp.init_shirnk_kT,
+                    kT_final=job.sp.final_shrink_kT,
+                    period=job.sp.shrink_period
             )
-            print("-------------------------------")
-            print("Shrink simulation finished...")
-            print("-------------------------------")
-            print()
-
-        if job.sp.procedure == "quench":
-            print("-------------------------------")
-            print("Running a quench simulation...")
-            print("-------------------------------")
-            print()
-            sim.quench(kT=job.sp.kT_quench, n_steps=job.sp.n_steps)
-            print("-------------------------------")
-            print("Quench simulation finished...")
-            print("-------------------------------")
-            print()
-            job.doc.done = True
-
-        elif job.sp.procedure == "anneal":
-            print("-------------------------------")
-            print("Running an anneal simulation...")
-            print("-------------------------------")
-            print()
-            sim.anneal(
-                    kT_init=job.sp.kT_anneal[0],
-                    kT_final=job.sp.kT_anneal[1],
-                    step_sequence=job.sp.anneal_sequence,
-                    schedule=job.sp.schedule
+            hoomd.write.GSD.write(
+                    sim.sim.state, filename=os.path.join(job.ws, "shrink.gsd")
             )
-            print("-------------------------------")
-            print("Anneal simulation finished...")
-            print("-------------------------------")
-            print()
-            job.doc.done = True
+
+
 
 
 if __name__ == "__main__":
