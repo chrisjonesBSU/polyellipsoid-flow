@@ -56,7 +56,7 @@ class Fry(DefaultSlurmEnvironment):
 
 # Definition of project-related labels (classification)
 @MyProject.label
-def sampled(job):
+def finished(job):
     return job.doc.done
 
 
@@ -68,7 +68,7 @@ def initialized(job):
 @directives(executable="python -u")
 @directives(ngpu=1)
 @MyProject.operation
-@MyProject.post(sampled)
+@MyProject.post(finished)
 def sample(job):
     from polyellipsoid import System, Simulation
     from cmeutils.gsd_utils import ellipsoid_gsd
@@ -117,25 +117,28 @@ def sample(job):
 
         # Write your simulation procedure below:
 
+        # Run a shrink simulation is all of the shrink params are defined:
         if all(
-                [
-                    job.sp.init_shrink_kT,
-                    job.sp.final_shrink_kT,
-                    job.sp.shrink_steps,
-                    job.sp.shrink_period,
-                ]
+                [job.sp.init_shrink_kT, job.sp.final_shrink_kT, 
+                 job.sp.shrink_steps, job.sp.shrink_period]
         ):
-            sim.temperature_ramp(
+            shrink_kT = sim.temperature_ramp(
                     n_steps=job.sp.shrink_steps,
                     kT_start=job.sp.init_shirnk_kT,
                     kT_final=job.sp.final_shrink_kT,
                     period=job.sp.shrink_period
             )
+
+            sim.run_shrink(
+                    kT=shrink_kT,
+                    tau_kt=job.sp.tau_kt,
+                    n_steps=job.sp.shrink_steps,
+                    shrink_period=job.sp.shrink_period
+            )
+
             hoomd.write.GSD.write(
                     sim.sim.state, filename=os.path.join(job.ws, "shrink.gsd")
             )
-
-
 
 
 if __name__ == "__main__":
