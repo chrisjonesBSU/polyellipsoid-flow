@@ -89,7 +89,7 @@ def sample(job):
                 chain_lengths=job.sp.chain_lengths,
                 bead_length=job.sp.bead_length,
                 bead_mass=job.sp.bead_mass,
-                density=job.sp.density
+                density=job.sp.density,
                 bond_length=job.sp.bond_length,
         )
         if job.sp.system_type == "pack":
